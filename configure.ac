@@ -292,26 +292,56 @@ case $host in
 esac
 AC_MSG_RESULT($PLATCFLAGS)
 
-# Add switch if necessary to enable C++11 support - just for tests
-AC_ARG_ENABLE([cpp11-testing], AS_HELP_STRING([--enable-cpp11-testing], [enable C++11 testing if supported by compiler (default disabled)]), [enable_cpp11_testing=$enableval], [enable_cpp11_testing=no])
-AC_MSG_CHECKING([whether to attempt to enable C++11 testing])
-AC_MSG_RESULT([$enable_cpp11_testing])
+# Set C++ standard - just for tests
+AC_ARG_VAR([CPP_STD_TESTING], AS_HELP_STRING([CPP_STD_TESTING], [set C++ standard for testing if supported by compiler (default 98)]))
+AC_MSG_CHECKING([C++ standard for testing])
+AC_MSG_RESULT([$CPP_STD_TESTING])
 
 PLATCXXFLAGS="$PLATCFLAGS"
-if test x"$enable_cpp11_testing" = xyes; then
+
+if test "$CPP_STD_TESTING" != 98; then
+
   CXX_SAVED=$CXX
   CXXCPP_SAVED=$CXXCPP
   CXXCPP=" "
-  AX_CXX_COMPILE_STDCXX(11, [noext], [optional])
-  AC_MSG_CHECKING([whether C++11 testing is actually enabled])
-  if test "$HAVE_CXX11" = "1"; then
-    AC_MSG_RESULT([yes])
-    PLATCXXFLAGS="$CXXCPP $PLATCXXFLAGS"
-  else
-    AC_MSG_RESULT([no])
+  
+  if test "$CPP_STD_TESTING" = 11; then
+    AX_CXX_COMPILE_STDCXX(11, [noext], [optional])
+    AC_MSG_CHECKING([whether C++11 is supported])
+    if test "$HAVE_CXX11" = "1"; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+    fi
   fi
+
+  if test "$CPP_STD_TESTING" = 14; then
+    AX_CXX_COMPILE_STDCXX(14, [noext], [optional])
+    AC_MSG_CHECKING([whether C++14 is supported])
+    if test "$HAVE_CXX14" = "1"; then
+      AC_MSG_RESULT([yes])
+      HAVE_CXX11=1
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+
+  if test "$CPP_STD_TESTING" = 17; then
+    AX_CXX_COMPILE_STDCXX(17, [noext], [optional])
+    AC_MSG_CHECKING([whether C++17 is supported])
+    if test "$HAVE_CXX17" = "1"; then
+      AC_MSG_RESULT([yes])
+      HAVE_CXX11=1
+      HAVE_CXX14=1
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+
+  PLATCXXFLAGS="$CXXCPP $PLATCXXFLAGS"
   CXX=$CXX_SAVED
   CXXCPP=$CXXCPP_SAVED
+
 fi
 
 # On darwin 10.7,10.8,10.9 using clang++, need to ensure using
@@ -370,6 +400,8 @@ AC_SUBST(RPATH)
 AC_SUBST(PLATCFLAGS)
 AC_SUBST(PLATCXXFLAGS)
 AC_SUBST(HAVE_CXX11)
+AC_SUBST(HAVE_CXX14)
+AC_SUBST(HAVE_CXX17)
 AC_SUBST(LINKFORSHARED)
 
 # This variation is needed on OS-X because there is no (apparent) consistency in shared library naming.

@@ -162,11 +162,6 @@ CPP_TEST_CASES += \
 	cpp_parameters \
 	cpp_static \
 	cpp_typedef \
-	cpp14_binary_integer_literals \
-	cpp17_hex_floating_literals \
-	cpp17_nested_namespaces \
-	cpp17_nspace_nested_namespaces \
-	cpp17_u8_char_literals \
 	curiously_recurring_template_pattern \
 	default_args \
 	default_arg_expressions \
@@ -615,6 +610,15 @@ CPP11_TEST_BROKEN = \
 #	cpp11_variadic_templates \    # Broken for some languages (such as Java)
 #	cpp11_reference_wrapper \     # No typemaps
 
+CPP14_TEST_CASES += \
+	cpp14_binary_integer_literals \
+
+CPP17_TEST_CASES += \
+	cpp17_hex_floating_literals \
+	cpp17_nested_namespaces \
+	cpp17_nspace_nested_namespaces \
+	cpp17_u8_char_literals \
+
 # Doxygen support test cases: can only be used with languages supporting
 # Doxygen comment translation (currently Python and Java) and only if not
 # disabled by configure via SKIP_DOXYGEN_TEST_CASES.
@@ -677,8 +681,16 @@ ifndef SKIP_CPP_STD_CASES
 CPP_TEST_CASES += ${CPP_STD_TEST_CASES}
 endif
 
-ifneq (,$(HAVE_CXX11))
+ifeq ($(HAVE_CXX11), 1)
 CPP_TEST_CASES += $(CPP11_TEST_CASES)
+endif
+
+ifeq ($(HAVE_CXX14), 1)
+CPP_TEST_CASES += $(CPP14_TEST_CASES)
+endif
+
+ifeq ($(HAVE_CXX17), 1)
+CPP_TEST_CASES += $(CPP17_TEST_CASES)
 endif
 
 # C test cases. (Can be run individually using: make testcase.ctest)
@@ -800,6 +812,10 @@ check-c: $(C_TEST_CASES:=.ctest)
 check-cpp: $(CPP_TEST_CASES:=.cpptest)
 
 check-cpp11: $(CPP11_TEST_CASES:=.cpptest)
+
+check-cpp14: $(CPP14_TEST_CASES:=.cpptest)
+
+check-cpp17: $(CPP17_TEST_CASES:=.cpptest)
 
 ifdef HAS_DOXYGEN
 check-doxygen: $(DOXYGEN_TEST_CASES:=.cpptest)
