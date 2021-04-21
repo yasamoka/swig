@@ -307,8 +307,10 @@ perl5_clean:
 
 PYTHON_FLAGS =
 
+PYVER = @PYVER@
+
 # Make sure these locate your Python installation
-ifeq (,$(PY3))
+ifneq ($(PYVER), 3)
   PYTHON_INCLUDE= $(DEFS) @PYINCLUDE@
   PYTHON_LIB    = @PYLIB@
   PYTHON        = @PYTHON@ $(PYTHON_FLAGS)
@@ -319,7 +321,7 @@ else
 endif
 
 # Extra Python specific linking options
-ifeq (,$(PY3))
+ifneq ($(PYVER), 3)
   PYTHON_DLNK   = @PYTHONDYNAMICLINKING@
   PYTHON_LINK   = @PYLINK@
 else
@@ -329,7 +331,7 @@ endif
 PYTHON_SO     = @PYTHON_SO@
 
 # SWIG option for Python3
-ifeq (,$(PY3))
+ifneq ($(PYVER), 3)
   SWIGOPTPY3 =
 else
   SWIGOPTPY3 = -py3
